@@ -4,12 +4,13 @@ import './App.css';
 
 function App() {
 
-const MY_ID = import.meta.env.VITE_MY_ID;
-const MY_KEY = import.meta.env.VITE_MY_KEY;
+  const MY_ID = import.meta.env.VITE_MY_ID;
+  const MY_KEY = import.meta.env.VITE_MY_KEY;
 
   const [mySearch, setMySearch] = useState('');
   const [myRecipes, setMyRecipes] = useState([]);
   const [wordSubmitted, setWordSubmitted] = useState('chicken');
+  const [error, setError] = useState('');
 
   useEffect(() => {
 
@@ -20,7 +21,14 @@ const MY_KEY = import.meta.env.VITE_MY_KEY;
 
       const data = await response.json();
       console.log(data);
-      setMyRecipes(data.hits || []);
+
+      if (data.status === 'error') {
+        setError('Sorry, recipes are temporarily unavailable. Please try again later.');
+        setMyRecipes([]);
+      } else {
+        setError('');
+        setMyRecipes(data.hits || []);
+      }
     };
 
     getRecipe();
@@ -50,14 +58,18 @@ const MY_KEY = import.meta.env.VITE_MY_KEY;
             onChange={myRecipeSearch}
             value={mySearch}
           />
+
+          <button type="submit">
+            Search
+          </button>
         </form>
       </div>
 
-      <div className="container">
-        <button onClick={finalSearch}>
-          Search
-        </button>
-      </div>
+      {error && (
+        <div className="container">
+      <p className="error">{error}</p>
+        </div>
+      )}
 
       {myRecipes.map((element, index) => (
         <MyRecipesComponents
